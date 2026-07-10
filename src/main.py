@@ -74,6 +74,17 @@ def show_expression(expression):
 
     label.image = mascot
 
-show_expression("surprise")
+def change_expression_after(expression , delay):
+    app.after(
+        delay,
+        lambda : show_expression(expression)
+    )
+
+
+show_expression("happy")
+
+change_expression_after("thinking",2000)
+change_expression_after("sleepy",5000)
+change_expression_after("laughing",8000)
 
 app.mainloop()
