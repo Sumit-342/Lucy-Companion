@@ -4,14 +4,29 @@ from PIL import Image
 # =================================
 # window constants
 # ===================================
-WINDOW_WIDTH = 300
-WINDOW_HEIGHT = 400
+WINDOW_WIDTH = 360
+WINDOW_HEIGHT = 450
 
 # ===================================
 # Mascot Constant 
 # ===================================
 MASCOT_WIDTH = 180
 MASCOT_HEIGHT = 340
+
+
+# Lucy Position
+LUCY_X = 170
+LUCY_Y = 260
+
+# Bubble Position
+BUBBLE_X = LUCY_X - 90
+BUBBLE_Y = LUCY_Y - 180
+
+BUBBLE_SIZES = {
+    "small": (135, 280),
+    "medium": (140, 300),
+    "large": (170, 360)
+}
 
 app = ctk.CTk()
 
@@ -39,7 +54,7 @@ app.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
 
 # load image
-image = Image.open("../assets/standing.png")
+image = Image.open("../assets/expressions/standing.png")
 
 # ctk image
 mascot = ctk.CTkImage(
@@ -55,8 +70,65 @@ label = ctk.CTkLabel(
     text=""
 )
 
-label.pack(expand = True)
+label.place(
+    x = LUCY_X,
+    y = LUCY_Y,
+    anchor = "center"
+)
 
+bubble_label = ctk.CTkLabel(
+    app,
+    text=""
+)
+
+bubble_text = ctk.CTkLabel(
+    bubble_label,
+    text="",
+    fg_color="transparent",
+    text_color="black",
+    font=("Segoe UI",14),
+    justify = "center"
+)
+
+bubble_text.place(
+    relx = 0.48,
+    rely = 0.43,
+    anchor = "center"
+)
+
+bubble_label.place(
+    x = BUBBLE_X + 20 ,
+    y = BUBBLE_Y,
+    anchor = "center"
+)
+
+
+def set_bubble_text(text):
+    bubble_text.configure(text=text)
+def show_speech_bubble(size):
+
+    width, height = BUBBLE_SIZES[size]
+
+    image = Image.open(f"../assets/speech/{size}.png")
+
+    bubble = ctk.CTkImage(
+        light_image=image,
+        dark_image=image,
+        size=(width, height)
+    )
+
+    bubble_label.configure(
+        image=bubble,
+        text="",
+        width=width,
+        height=height
+    )
+
+    bubble_label.image = bubble
+
+    bubble_text.configure(
+        wraplength=int(width * 0.7)
+    )
 
 def show_expression(expression):
 
@@ -80,11 +152,38 @@ def change_expression_after(expression , delay):
         lambda : show_expression(expression)
     )
 
+def hide_message():
 
-show_expression("happy")
+    # Hide bubble
+    bubble_label.configure(image = None)
 
-change_expression_after("thinking",2000)
-change_expression_after("sleepy",5000)
-change_expression_after("laughing",8000)
+    # Hide text
+    bubble_text.configure(text = "")
+
+    # Return lucy to standing 
+    show_expression("thinking")
+
+
+def show_message(text, expression, bubble, duration = 3000):
+
+    # Change Lucy's expression
+    show_expression(expression)
+
+    # Show bubble
+    show_speech_bubble(bubble)
+
+    # Show text
+    set_bubble_text(text)
+
+    # Hide everthing after duration
+    app.after(duration,hide_message)
+
+
+show_message(
+    text="its time for milk",
+    expression="happy",
+    bubble="medium",
+    duration=3000
+)
 
 app.mainloop()
