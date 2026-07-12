@@ -1,5 +1,8 @@
 import customtkinter as ctk
 from PIL import Image
+from win32 import win32gui
+from win32.lib import win32con
+from win32 import win32api
 
 # =================================
 # window constants
@@ -29,6 +32,8 @@ BUBBLE_SIZES = {
 }
 
 app = ctk.CTk()
+
+app.config(fg_color = "white")
 
 # window settings
 app.title("Lucy Companion")
@@ -178,6 +183,24 @@ def show_message(text, expression, bubble, duration = 3000):
     # Hide everthing after duration
     app.after(duration,hide_message)
 
+def make_window_transparent():
+
+    hwnd = win32gui.GetParent(app.winfo_id())
+
+    ex_style = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
+
+    win32gui.SetWindowLong(
+        hwnd,
+        win32con.GWL_EXSTYLE,
+        ex_style | win32con.WS_EX_LAYERED
+    )
+
+    win32gui.SetLayeredWindowAttributes(
+        hwnd,
+        win32api.RGB(255, 255, 255),
+        0,
+        win32con.LWA_COLORKEY
+    )
 
 show_message(
     text="its time for milk",
@@ -185,5 +208,6 @@ show_message(
     bubble="medium",
     duration=3000
 )
-
+app.update()
+make_window_transparent()
 app.mainloop()
