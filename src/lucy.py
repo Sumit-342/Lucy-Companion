@@ -12,7 +12,12 @@ from PySide6.QtWidgets import QApplication
 class Lucy(QWidget):
 
     def __init__(self):
+
+        self.dragging = False
+        self.drag_postion = None
+
         super().__init__()
+
         
         self.image_label = QLabel(self)
 
@@ -124,3 +129,29 @@ class Lucy(QWidget):
     def contextMenuEvent(self, event):
 
         self.context_menu.exec(event.globalPos())
+
+
+    def mousePressEvent(self, event):
+
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+
+
+        
+    def mouseMoveEvent(self, event):
+
+        if self.dragging:
+
+            new_pos = event.globalPosition().toPoint() - self.drag_position
+
+            self.move(new_pos)
+
+            self.card.move(
+                new_pos.x() + (self.width() - self.card.width()) // 2,
+                new_pos.y() - self.card.height() - 15
+        )
+            
+    def mouseReleaseEvent(self, event):
+
+        self.dragging = False
