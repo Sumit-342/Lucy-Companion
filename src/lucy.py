@@ -4,7 +4,9 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QFrame, QLabel , QWidget , QVBoxLayout
 from PySide6.QtCore import Qt
 from message_card import MessageCard
-
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QMenu
+from PySide6.QtWidgets import QApplication
 
 
 class Lucy(QWidget):
@@ -51,6 +53,14 @@ class Lucy(QWidget):
 
         self.setAttribute(Qt.WA_TranslucentBackground)
 
+        self.context_menu = QMenu()
+
+        exit_action = QAction("❌ Exit", self)
+
+        self.context_menu.addAction(exit_action)
+
+        exit_action.triggered.connect(QApplication.quit)
+
         self.show_expression("sleepy")
         self.card = MessageCard()
         self.card.hide()
@@ -62,6 +72,11 @@ class Lucy(QWidget):
     def show_expression(self, expression):
 
         pixmap = QPixmap(f"../assets/expressions/{expression}.png")
+
+        if pixmap.isNull():
+            print(f"❌ Expression '{expression}' not found!")
+            return
+
 
         pixmap = pixmap.scaled(
             180,
@@ -83,7 +98,10 @@ class Lucy(QWidget):
         )
 
 
-    def say(self, text):
+    def say(self, text,expression = None , duration = 3000):
+
+        if expression :
+            self.show_expression(expression)
 
         self.card.say(text)
 
@@ -94,6 +112,15 @@ class Lucy(QWidget):
         self.card.move(card_x, card_y)
 
         QTimer.singleShot(
-            3000,
+            duration,
             self.card.hide
         )
+
+        QTimer.singleShot(
+            duration,
+            lambda : self.show_expression("thinking")
+        )
+
+    def contextMenuEvent(self, event):
+
+        self.context_menu.exec(event.globalPos())

@@ -17,6 +17,10 @@ lucy.move(x, y)
 
 lucy.show()
 
-lucy.say("Good Morning Broo ! 😁")
+lucy.say(
+    text= "hello there dirnk water ",
+    expression="sleepy",
+    duration=5000
+)
 
 sys.exit(app.exec())
