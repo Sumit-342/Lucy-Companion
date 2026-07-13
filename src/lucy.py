@@ -7,6 +7,7 @@ from message_card import MessageCard
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QPixmap , QTransform
 
 
 class Lucy(QWidget):
@@ -51,6 +52,8 @@ class Lucy(QWidget):
         self.move_timer.start(16)
 
         self.walk_index = 0
+
+        self.facing_right = True
 
         self.card = QFrame(self)
 
@@ -149,9 +152,15 @@ class Lucy(QWidget):
         current_x = self.x()
 
         if current_x < self.target_x:
+
+            self.facing_right = True
+
             self.move(current_x + 2, self.y())
 
         elif current_x > self.target_x:
+
+            self.facing_right = False
+
             self.move(current_x - 2, self.y())
 
         else:
@@ -162,6 +171,11 @@ class Lucy(QWidget):
     def play_walk_animation(self):
 
         pixmap = self.walk_frames[self.walk_index]
+
+        if not self.facing_right :
+            pixmap = pixmap.transformed(
+                QTransform().scale(-1,1)
+            )
 
         pixmap = pixmap.scaled(
             180,
