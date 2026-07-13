@@ -1,6 +1,7 @@
 import random
 from PySide6.QtCore import QTimer
 from datetime import datetime
+import json
 
 MILK_REMINDERS = [
     "🥛 Brooo! Time for your milk!",
@@ -40,19 +41,7 @@ SLEEP_REMINDERS = [
 ]
 
 
-REMINDER_SCHEDULE = [
 
-    {
-        "time": "22:26",
-        "type": "milk"
-    },
-
-    {
-        "time": "00:00",
-        "type": "sleep"
-    }
-
-]
 
 class ReminderManager:
 
@@ -62,6 +51,9 @@ class ReminderManager:
         self.timer.timeout.connect(self.check_reminders)
 
         self.lucy = lucy
+
+        with open("../data/reminders.json","r") as file :
+            self.reminder_schedule = json.load(file)
 
     def milk_reminder(self):
 
@@ -98,7 +90,7 @@ class ReminderManager:
 
         current_time = datetime.now().strftime("%H:%M")
 
-        for reminder in REMINDER_SCHEDULE:
+        for reminder in self.reminder_schedule:
 
             if reminder["time"] == current_time:
 
