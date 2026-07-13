@@ -52,6 +52,11 @@ class ReminderManager:
 
         self.lucy = lucy
 
+        self.reminders = {
+            "milk" : self.milk_reminder,
+            "sleep" : self.sleep_reminder
+        }
+
         with open("../data/reminders.json","r") as file :
             self.reminder_schedule = json.load(file)
 
@@ -76,12 +81,9 @@ class ReminderManager:
         )
     
     def trigger_reminder(self, reminder_type):
-
-        if reminder_type == "milk":
-            self.milk_reminder()
-
-        elif reminder_type == "sleep":
-            self.sleep_reminder()
+        
+        if reminder_type in self.reminders :
+            self.reminders[reminder_type()]
     
     def start(self):
         self.timer.start(60000)

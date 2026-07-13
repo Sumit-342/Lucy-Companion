@@ -21,6 +21,37 @@ class Lucy(QWidget):
         
         self.image_label = QLabel(self)
 
+        self.walk_frames = [
+
+        QPixmap("../assets/animations/walk/walk_01.png"),
+        QPixmap("../assets/animations/walk/walk_02.png"),
+        QPixmap("../assets/animations/walk/walk_03.png"),
+        QPixmap("../assets/animations/walk/walk_04.png"),
+        QPixmap("../assets/animations/walk/walk_05.png"),
+        QPixmap("../assets/animations/walk/walk_06.png")
+        ]
+
+        self.target_x = 0
+        self.target_y = 0
+
+        self.is_walking = False
+
+        self.walk_timer = QTimer()
+        self.move_timer = QTimer()
+
+
+        self.walk_timer.timeout.connect(self.play_walk_animation)
+
+        # self.walk_timer(120)
+
+        self.move_timer.timeout.connect(
+            self.update_position
+        )
+        
+        self.move_timer.start(16)
+
+        self.walk_index = 0
+
         self.card = QFrame(self)
 
         self.card.setStyleSheet("""
@@ -74,6 +105,11 @@ class Lucy(QWidget):
             3000
         )
 
+        QTimer.singleShot(
+            3000,
+            lambda : self.walk_to(700,self.y())
+        )
+
     def show_expression(self, expression):
 
         pixmap = QPixmap(f"../assets/expressions/{expression}.png")
@@ -94,6 +130,49 @@ class Lucy(QWidget):
 
         self.image_label.adjustSize()
         self.resize(self.image_label.size())
+
+
+    def walk_to(self, x, y):
+
+        self.target_x = x
+        self.target_y = y
+
+        self.is_walking = True
+
+        self.walk_timer.start(200)
+
+    def update_position(self):
+
+        if not self.is_walking:
+            return
+
+        current_x = self.x()
+
+        if current_x < self.target_x:
+            self.move(current_x + 2, self.y())
+
+        elif current_x > self.target_x:
+            self.move(current_x - 2, self.y())
+
+        else:
+            self.is_walking = False
+            self.walk_timer.stop()
+            self.show_expression("thinking")
+
+    def play_walk_animation(self):
+
+        pixmap = self.walk_frames[self.walk_index]
+
+        pixmap = pixmap.scaled(
+            180,
+            340,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
+
+        self.image_label.setPixmap(pixmap)
+
+        self.walk_index = (self.walk_index + 1) % len(self.walk_frames)
 
     def change_expression_after(self, expression , delay):
 
