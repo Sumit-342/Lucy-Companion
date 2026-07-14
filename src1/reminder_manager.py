@@ -1,11 +1,7 @@
-import json
 import random
-from datetime import datetime
-from pathlib import Path
-
 from PySide6.QtCore import QTimer
-
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+from datetime import datetime
+import json
 
 MILK_REMINDERS = [
     "🥛 Brooo! Time for your milk!",
@@ -24,6 +20,7 @@ MILK_REMINDERS = [
     "🥛 One glass. One minute. Let's do it, bro!",
     "🥛 Hydration is great... but don't forget your milk too!"
 ]
+
 
 SLEEP_REMINDERS = [
     "😴 Bro... it's midnight. Time to get some sleep.",
@@ -44,47 +41,61 @@ SLEEP_REMINDERS = [
 ]
 
 
+
+
 class ReminderManager:
 
     def __init__(self, lucy):
-        self.lucy = lucy
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.check_reminders)
 
+        self.lucy = lucy
+
         self.reminders = {
-            "milk": self.milk_reminder,
-            "sleep": self.sleep_reminder,
+            "milk" : self.milk_reminder,
+            "sleep" : self.sleep_reminder
         }
 
-        with open(DATA_DIR / "reminders.json", "r", encoding="utf-8") as file:
+        with open("../data/reminders.json","r") as file :
             self.reminder_schedule = json.load(file)
 
     def milk_reminder(self):
+
         message = random.choice(MILK_REMINDERS)
-        self.lucy.say(text=message, expression="happy", duration=4000)
+
+        self.lucy.say(
+            text=message,
+            expression="happy",
+            duration=4000
+        )
 
     def sleep_reminder(self):
+
         message = random.choice(SLEEP_REMINDERS)
-        self.lucy.say(text=message, expression="sleepy", duration=5000)
 
+        self.lucy.say(
+            text=message,
+            expression="sleepy",
+            duration=5000
+        )
+    
     def trigger_reminder(self, reminder_type):
-        # BUG FIX: was `self.reminders[reminder_type()]` - reminder_type is a
-        # string ("milk"/"sleep"), calling it as a function raised a
-        # TypeError the instant any reminder fired. Correct form is
-        # look-up-then-call: `self.reminders[reminder_type]()`.
-        handler = self.reminders.get(reminder_type)
-        if handler:
-            handler()
-        else:
-            print(f"⚠️ Unknown reminder type: {reminder_type}")
-
+        
+        if reminder_type in self.reminders :
+            self.reminders[reminder_type()]
+    
     def start(self):
         self.timer.start(60000)
 
     def check_reminders(self):
+
         current_time = datetime.now().strftime("%H:%M")
 
         for reminder in self.reminder_schedule:
+
             if reminder["time"] == current_time:
-                self.trigger_reminder(reminder["type"])
+
+                self.trigger_reminder(
+                    reminder["type"]
+                )
