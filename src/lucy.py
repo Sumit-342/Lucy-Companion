@@ -8,6 +8,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMenu
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QPixmap , QTransform
+from state import LucyState
 
 
 class Lucy(QWidget):
@@ -16,6 +17,7 @@ class Lucy(QWidget):
 
         self.dragging = False
         self.drag_postion = None
+       
 
         super().__init__()
 
@@ -140,6 +142,7 @@ class Lucy(QWidget):
         self.target_x = x
         self.target_y = y
 
+        self.state = LucyState.WALKING
         self.is_walking = True
 
         self.walk_timer.start(200)
@@ -164,6 +167,7 @@ class Lucy(QWidget):
             self.move(current_x - 2, self.y())
 
         else:
+            self.state = LucyState.IDLE
             self.is_walking = False
             self.walk_timer.stop()
             self.show_expression("thinking")
@@ -198,6 +202,8 @@ class Lucy(QWidget):
 
     def say(self, text,expression = None , duration = 3000):
 
+        self.state = LucyState.TALKING
+
         if expression :
             self.show_expression(expression)
 
@@ -219,6 +225,11 @@ class Lucy(QWidget):
             lambda : self.show_expression("thinking")
         )
 
+        QTimer.singleShot(
+            duration,
+            lambda: setattr(self,"state",LucyState.IDLE)
+        )
+
     def contextMenuEvent(self, event):
 
         self.context_menu.exec(event.globalPos())
@@ -228,7 +239,10 @@ class Lucy(QWidget):
 
         if event.button() == Qt.LeftButton:
             self.dragging = True
+            
             self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+            self.state = LucyState.DRAGGING
+            
 
 
         
@@ -248,3 +262,4 @@ class Lucy(QWidget):
     def mouseReleaseEvent(self, event):
 
         self.dragging = False
+        self.state = LucyState.IDLE
