@@ -2,7 +2,10 @@ from enum import Enum
 
 
 class LucyState(Enum):
-    IDLE = "idle"
-    WALKING = "walking"
-    TALKING = "talking"
+    HIDDEN = "hidden"
+    WALKING_IN = "walking_in"
+    THINKING = "thinking"
+    ACTIVE_REMINDER = "active_reminder"
+    CONFIRMING = "confirming"
+    WALKING_OUT = "walking_out"
     DRAGGING = "dragging"

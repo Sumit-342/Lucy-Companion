@@ -1,28 +1,24 @@
 import sys
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QGuiApplication
 
 from lucy import Lucy
 from reminder_manager import ReminderManager
-from roaming import RoamingManager
 
-app = QApplication(sys.argv)
 
-lucy = Lucy()
+def main():
+    app = QApplication(sys.argv)
 
-roaming = RoamingManager(lucy)
-roaming.start()
+    # Keep the background reminder cycle running even while Lucy is hidden.
+    app.setQuitOnLastWindowClosed(False)
 
-screen = QGuiApplication.primaryScreen().availableGeometry()
+    lucy = Lucy()
 
-x = screen.width() - lucy.width() - 20
-y = screen.height() - lucy.height() - 20
-lucy.move(x, y)
+    manager = ReminderManager(lucy)
+    manager.start()
 
-lucy.show()
+    sys.exit(app.exec())
 
-manager = ReminderManager(lucy)
-manager.start()
 
-sys.exit(app.exec())
+if __name__ == "__main__":
+    main()
